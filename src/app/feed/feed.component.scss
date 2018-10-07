@@ -1,17 +1,28 @@
-@import '~styles/main';
+@import '~src/styles/main';
+
+.scroll-to-top {
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+	opacity: 0;
+    transition: all .2s ease-in-out;
+}
+
+.show-scroll {
+    opacity: 1;
+    transition: all .2s ease-in-out;
+}
 
 .outer-wrapper {
-	min-height: 100vh;
-
+	min-height: 94vh;
 	.feed-wrapper {
 		padding-top: 30px;
 		flex-direction: row;
-
 		.wrapper {
 			margin-left: 150px;
 			float: none;
 
-			@media(min-width: 1000px ) {
+			@media(min-width: 1179px ) {
 				float: left;
 			}
 		}
@@ -24,36 +35,9 @@
 			.feed-results {
 				width: 632px;
 			}
-
-			.user-feed-results {
-				width: 1120px;
-			}
 		}
-
-		.user-feed-results {
-			display:flex;
-			flex-wrap: wrap;
-			justify-content: space-between;
-		}
-
-			.card-wrapper {
-
-				width: 100%;
-
-				@media(min-width: 600px) {
-					width: 49%;
-				}
-
-				@media(min-width: 1000px) {
-					width: 24%;
-				}
-
-				margin-bottom: 15px;
-				border: 1px solid #e1e8ed;
-			}
 
 		.feed-info-box {
-
 			@media(min-width: 1180px) {
 				width: calc(100% - 812px);
 				max-width: 454px;
@@ -69,22 +53,12 @@
 	}
 }
 
-@media (min-height: 550px) {
-	app-footer.peeking {
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		width: 100vw;
-	}
-}
-
 @media all and (max-width:1000px){
-		.feed-wrapper{
-			flex-direction: row-reverse;
-			-webkit-flex-flow: column wrap;
-		    flex-flow: column wrap;
-		}
-
+	.feed-wrapper{
+		flex-direction: row-reverse;
+		-webkit-flex-flow: column wrap;
+		flex-flow: column wrap;
+	}
 }
 
 .searching {
@@ -106,11 +80,6 @@
 	margin: 0 23%;
 }
 
-.pagination {
-	width: 100%;
-	padding: 20px;
-}
-
 @keyframes spin {
 	0% {
 		transform: rotate(0deg);
@@ -122,15 +91,19 @@
 
 button {
 	display: block;
-	margin: 0 auto;
+	margin: 32px auto;
 	font-size: 1.1em;
 	padding: 5px;
-	color: #2865a1;
 	font-weight: 700;
 	background: transparent;
 	border: none;
 	cursor: pointer;
-
+	height: 40px;
+    width: 40px;
+	font-size: 30px;
+	color: white;
+    background-color: #d23e42;
+    border-radius: 76px;
 	&:focus {
 		border: none;
 		outline: none;

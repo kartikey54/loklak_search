@@ -1,4 +1,4 @@
-@import '~styles/main';
+@import '~src/styles/main';
 
 #speech-button {
   border-radius: 0;
@@ -25,7 +25,7 @@
   width: 25px;
 }
 
-@-moz-document url-prefix() { 
+@-moz-document url-prefix() {
   .microphone {
     display: none;
   }
@@ -42,25 +42,18 @@ div.outer-wrapper {
 	position:  relative;
 	@include --center-flex();
 
-service-box {
+	service-box {
 		position: absolute;
 		top: 20px;
 		right: 30px;
-}
+	}
 
 	div.wrapper {
-		position: relative;
+		position: absolute;
 		@include --center-flex-vertical();
 
-		width: 584px;
-		margin: 15px;
-		top: -9.5vh;
-
-		@media(max-height: 550px) {
-			& {
-				top: 0px;
-			}
-		}
+		width: 45%;
+		top: 16.5vh;
 
 		h1 {
 			font-weight: 300;
@@ -80,7 +73,8 @@ service-box {
 		}
 
 		div.search-form {
-			width: 100%;
+			width: 85vw;
+			max-width: 584px;
 			@include --center-flex();
 
 			div.search-input {
@@ -108,12 +102,10 @@ service-box {
 					box-shadow: none;
 					height: 44px;
 					background: #ffffff;
-
 					&:focus {
 						outline: none;
 					}
 				}
-
 				#search-suffix-icon {
 					pointer-events: none;
 					padding: 10px 15px 10px 0px;
@@ -122,53 +114,40 @@ service-box {
 		}
 
 		div.help-text{
-				font-size: 12px;
-				line-height: 1.4;
-				width: 100%;
-				margin-bottom: 20px;
+			font-size: 12px;
+			line-height: 1.4;
+			width: 85vw;
+			max-width: 584px;
+			margin-bottom: 20px;
 
-				.highlight{
-					background-color: #eeeeee;
-					padding: 1px 3px;
-				}
+			.highlight{
+				background-color: #eeeeee;
+				padding: 1px 3px;
+			}
 		}
 
-		div.top-hashtags-wrapper{
-			height: 24px;
+		div.top-hashtags {
+			max-width: 584px;
+			width: 85vw;
+			display: flex;
+			align-items: center;
+			font-size: small;
+			flex-direction: column;
 
-			div.top-hashtags {
-				max-width: 584px;
+			.top-list,
+			.bottom-list {
 				display: flex;
 				align-items: center;
-				font-size: small;
+				flex-wrap: wrap;
 
-				.trending {
-					margin-right: 10px;
-					color: grey;
-				}
-
-				.hashtag-list {
+				.hashtag {
 					display: flex;
 					align-items: center;
-					flex-direction: column;
 
-					.top-list,
-					.bottom-list {
-						display: flex;
-						align-items: center;
-						flex-wrap: wrap;
-
-						.hashtag {
-							display: flex;
-							align-items: center;
-
-							pre {
-								margin: 0px 0px;
-								font-family: 'Roboto', sans-serif;
-								white-space: nowrap;
-								
-							}
-						}
+					pre {
+						margin: 0px 0px;
+						font-family: 'Roboto', sans-serif;
+						white-space: nowrap;
 					}
 				}
 			}

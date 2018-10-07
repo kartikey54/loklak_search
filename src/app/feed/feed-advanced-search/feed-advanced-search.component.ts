@@ -1,21 +1,16 @@
 import {
 	Component,
-	Input,
-	Output,
-	ViewChild,
 	OnInit,
-	EventEmitter,
 	ChangeDetectionStrategy,
 	ElementRef
 } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../../reducers';
 import * as queryAction from '../../actions/query';
-
 import { Query, FilterList, TimeBound } from '../../models';
-import { countrycodearray } from '../../shared/countrycode/countrycode';
+import * as newsAction from '../../actions/news';
 
 @Component({
 	selector: 'feed-advanced-search',
@@ -72,27 +67,31 @@ export class FeedAdvancedSearchComponent implements OnInit {
 
 	public getFilterResults(value: string) {
 		if (value === 'all') {
+			this.store.dispatch(new newsAction.NewsStatusAction(false));
 			this.selectedTab = 'all';
 			this.filterList = {
 				image: false,
 				video: false
 			};
-		}
-		else if (value === 'image') {
+		} else if (value === 'image') {
+			this.store.dispatch(new newsAction.NewsStatusAction(false));
 			this.selectedTab = 'image';
 			this.filterList = {
 				image: true,
 				video: false
 			};
-		}
-		else if (value === 'video') {
+		} else if (value === 'video') {
+			this.store.dispatch(new newsAction.NewsStatusAction(false));
 			this.selectedTab = 'video';
 			this.filterList = {
 				image: false,
 				video: true
 			};
-		}
-		else {
+		} else if (value === 'news') {
+			this.store.dispatch(new newsAction.NewsStatusAction(true));
+			this.selectedTab = 'news';
+		} else {
+			this.store.dispatch(new newsAction.NewsStatusAction(false));
 			this.selectedTab = 'all';
 			this.filterList = {
 				image: false,
@@ -110,24 +109,21 @@ export class FeedAdvancedSearchComponent implements OnInit {
 				since: null,
 				until: null
 			};
-		}
-		else if (value === 'lastDay') {
+		} else if (value === 'lastDay') {
 			this.timeBoundValue = 'Past 24 hours';
 			const date24HoursBefore = new Date(new Date().getTime() - (24 * 60 * 60 * 1000));
 			this.timeBound = {
 				since: date24HoursBefore,
 				until: null
 			};
-		}
-		else if (value === 'lastWeek') {
+		} else if (value === 'lastWeek') {
 			this.timeBoundValue = 'Past week';
 			const date1WeekBefore = new Date(new Date().getTime() - (7 * 24 * 60 * 60 * 1000));
 			this.timeBound = {
 				since: date1WeekBefore,
 				until: null
 			};
-		}
-		else {
+		} else {
 			this.timeBoundValue = 'Any time';
 			this.timeBound = {
 				since: null,
@@ -142,24 +138,19 @@ export class FeedAdvancedSearchComponent implements OnInit {
 		if (value === 'all') {
 			this.locationValue = 'All Countries';
 			this.location = null;
-		}
-		else if (value === 'India') {
+		} else if (value === 'India') {
 			this.locationValue = 'Country: India';
 			this.location = 'India';
-		}
-		else if (value === 'China') {
+		} else if (value === 'China') {
 			this.locationValue = 'Country: China';
 			this.location = 'China';
-		}
-		else if (value === 'US') {
+		} else if (value === 'US') {
 			this.locationValue = 'Country: US';
 			this.location = 'US';
-		}
-		else if (value === 'UK') {
+		} else if (value === 'UK') {
 			this.locationValue = 'Country: UK';
 			this.location = 'UK';
-		}
-		else {
+		} else {
 			this.locationValue = 'All Countries';
 			this.location = null;
 		}

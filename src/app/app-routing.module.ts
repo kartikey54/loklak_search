@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Route, Routes, RouterModule, PreloadingStrategy } from '@angular/router';
-import { Observable } from 'rxjs/Observable';
-import { of } from 'rxjs/observable/of';
+import { Observable, of } from 'rxjs';
 
 export class CustomPreloadStrategy implements PreloadingStrategy {
 	preload(route: Route, load: Function): Observable<any> {
@@ -40,6 +39,10 @@ const routes: Routes = [
 	{
 		path: 'wall',
 		loadChildren: './media-wall/media-wall.module#MediaWallModule'
+	},
+	{
+		path: 'settings',
+		loadChildren: './settings/settings.module#SettingsModule'
 	}
 ];
 

@@ -1,26 +1,25 @@
-import { Component, OnInit, ElementRef } from '@angular/core';
+import { Component, OnInit, ElementRef, HostListener } from '@angular/core';
+import { defaultUrlConfig } from '../shared/url-config';
 
 @Component({
 	selector: 'service-box',
 	templateUrl: './service-box.component.html',
 	styleUrls: ['./service-box.component.scss'],
-	host: {
-'(document:click)': 'onClick($event)'
-}
-
 })
 export class ServiceBoxComponent implements OnInit {
 	public opened = false;
-	onClick(event) {
+	public configUrl = defaultUrlConfig;
 
-if (!this._eref.nativeElement.contains(event.target)) {
-	this.opened = false;
-}
+	@HostListener('document: click', ['$event'])
+	boxClose(event: Event) {
+			if (!this._eref.nativeElement.contains(event.target)) {
+				this.opened = false;
+				}
+			}
 
-}
+	constructor(
+		private _eref: ElementRef
+	) { }
 
-	constructor(private _eref: ElementRef) { }
-
-	ngOnInit() {
-	}
+	ngOnInit() { }
 }

@@ -12,7 +12,7 @@ describe('ServiceBoxComponent', () => {
 				MatButtonModule,
 				MatIconModule
 			],
-			declarations: [ServiceBoxComponent]
+			declarations: [ ServiceBoxComponent ]
 		})
 			.compileComponents();
 	}));

@@ -1,7 +1,6 @@
 import { createSelector } from 'reselect';
-import { ActionReducer } from '@ngrx/store';
+import { ActionReducerMap, MetaReducer } from '@ngrx/store';
 import { environment } from '../../environments/environment';
-import { ApiResponse } from '../models/api-response';
 
 
 /**
@@ -12,7 +11,7 @@ import { ApiResponse } from '../models/api-response';
  *
  * More: https://drboolean.gitbooks.io/mostly-adequate-guide/content/ch5.html
  */
-import { compose } from '@ngrx/core';
+import { compose } from '@ngrx/store';
 
 /**
  * storeFreeze prevents state from being mutated. When mutation occurs, an
@@ -42,6 +41,7 @@ import * as fromQuery from './query';
 import * as fromUserQuery from './user-query';
 import * as fromSearch from './search';
 import * as fromUserSearch from './user-search';
+import * as fromTitle from './title';
 import * as fromTrends from './trends';
 import * as fromApiResponse from './api-response';
 import * as fromApiTrendsResponse from './api-trends-response';
@@ -56,6 +56,9 @@ import * as fromMediaWallCustom from './media-wall-custom';
 import * as fromMediaWallPagination from './media-wall-pagination';
 import * as fromMediaWallDesign from './media-wall-design';
 import * as fromMediaWallDirectUrl from './media-wall-direct-url';
+import * as fromSpeech from './speech';
+import * as fromNews from './news-status';
+import * as fromNewsResponse from './news-response';
 
 /**
  * As mentioned, we treat each reducer like a table in a database. This means
@@ -80,6 +83,10 @@ export interface State {
 	mediaWallPagination: fromMediaWallPagination.State;
 	mediaWallDesign: fromMediaWallDesign.State;
 	mediaWallDirectUrl: fromMediaWallDirectUrl.State;
+	speech: fromSpeech.State;
+	title: fromTitle.State;
+	newsStatus: fromNews.State;
+	newsResponse: fromNewsResponse.State;
 }
 
 /**
@@ -89,12 +96,13 @@ export interface State {
  * wrapping that in storeLogger. Remember that compose applies
  * the result from right to left.
  */
-const reducers = {
+export const reducers: ActionReducerMap<State> = {
 	query: fromQuery.reducer,
 	userQuery: fromUserQuery.reducer,
 	search: fromSearch.reducer,
 	userSearch: fromUserSearch.reducer,
 	trends: fromTrends.reducer,
+	title: fromTitle.reducer,
 	apiResponse: fromApiResponse.reducer,
 	apiTrendsResponse: fromApiTrendsResponse.reducer,
 	pagination: fromPagination.reducer,
@@ -107,20 +115,14 @@ const reducers = {
 	mediaWallCustom: fromMediaWallCustom.reducer,
 	mediaWallPagination: fromMediaWallPagination.reducer,
 	mediaWallDesign: fromMediaWallDesign.reducer,
-	mediaWallDirectUrl: fromMediaWallDirectUrl.reducer
+	mediaWallDirectUrl: fromMediaWallDirectUrl.reducer,
+	speech: fromSpeech.reducer,
+	newsStatus: fromNews.reducer,
+	newsResponse: fromNewsResponse.reducer
 };
 
-const developmentReducer: ActionReducer<State> = compose(storeFreeze, combineReducers)(reducers);
-const productionReducer: ActionReducer<State> = combineReducers(reducers);
-
-export function reducer(state: any, action: any) {
-	if (environment.production) {
-		return productionReducer(state, action);
-	}
-	else {
-		return developmentReducer(state, action);
-	}
-}
+export const metaReducers: MetaReducer<State>[] =
+	!environment.production ? [storeFreeze] : [];
 
 /**
  * A selector function is a map function factory. We pass it parameters and it
@@ -187,7 +189,7 @@ export const getQuerySearchString = createSelector(getQueryState, fromQuery.getQ
 export const getQueryFilterList = createSelector(getQueryState, fromQuery.getFilterList);
 export const getQueryTimeBoundSet = createSelector(getQueryState, fromQuery.getTimeBoundSet);
 export const getQueryLocation = createSelector(getQueryState, fromQuery.getLocation);
-export const getIsFromQuery = createSelector(getQueryState, fromQuery.isFromQuery);
+export const getIsFromQuery = createSelector(getQueryState, fromQuery.getIsFromQuery);
 
 /**
  * Selector for User Query
@@ -247,6 +249,13 @@ export const getAreTrendsLoading = createSelector(getTrendsState, fromTrends.get
 export const getApiTrendsResponseState = (state: State) => state.apiTrendsResponse;
 
 export const getApiHashtagTrends = createSelector(getApiTrendsResponseState, fromApiTrendsResponse.getHashtags);
+
+/**
+ * Selectors For Title
+ */
+export const getTitleState = (state: State) => state.title;
+
+export const getTitle = createSelector(getTitleState, fromTitle.getTitle);
 
 /**
  * Selectors for Media Wall Query
@@ -338,3 +347,23 @@ export const getIsUserSearchSuccess =
 	createSelector(getUserSearchLoading, getAreApiUserResultsValid, (userSearchLoading, userResultsValid) => {
 		return (!userSearchLoading && userResultsValid);
 	});
+
+export const getSpeechState = (state: State) => state.speech;
+
+export const getspeechStatus = createSelector(getSpeechState, fromSpeech.getspeechStatus);
+
+/**
+ * Selector for News Status
+ */
+
+export const getNewsState = (state: State) => state.newsStatus;
+
+export const getNewsStatus = createSelector(getNewsState, fromNews.getNewsStatus);
+
+/**
+ * Selector for News Response
+ */
+
+export const getNewsResponseState = (state: State) => state.newsResponse;
+
+export const getNewsResponse = createSelector(getNewsResponseState, fromNewsResponse.getNewsResponse);

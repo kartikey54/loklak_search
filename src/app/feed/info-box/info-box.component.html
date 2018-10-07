@@ -9,17 +9,17 @@
 				<tbody>
 					<tr class="leaderboard-item" *ngFor="let item of topTwitterers">
 						<td>
-							<img src="https://twitter.com/{{item[0]}}/profile_image?size=normal" alt="{{item[0]}}" *ngIf="inviewporttwitters">
-							<span class="label leaderboard-label">{{item[1]}}</span>
+							<img src="{{item[1][1]}}" alt="{{item[1][0]}}" *ngIf="inviewporttwitters" onerror="this.src='assets/images/def94.jpg'">
+							<span class="label leaderboard-label">{{item[1][0].length}}</span>
 						</td>
 						<td class="leaderboard-text">
-							<a [routerLink]="['/search']" [queryParams]="{ query : 'from:' + item[0] }">@{{item[0]}}</a>
+							<a [routerLink]="['/search']" [queryParams]="{ query : 'from:' + item[1][0] }">@{{item[1][0]}}</a>
 						</td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
-		<div class="col-sm-12 col-xs-12 col-md-6" *ngIf="areTopHashtagsAvailable">
+		<div class="col-sm-12 col-xs-12 col-md-6 top-hashtags" *ngIf="areTopHashtagsAvailable">
 			<h4>Top Hashtags</h4>
 			<table class="table">
 				<tbody>
@@ -42,7 +42,7 @@
 				<tbody>
 					<tr class="leaderboard-item" *ngFor="let item of topMentions">
 						<td>
-							<img src="https://twitter.com/{{item[0]}}/profile_image?size=normal" alt="" *ngIf="inviewportmentions">
+							<img src="https://twitter.com/{{item[0]}}/profile_image?size=mini" alt="{{item[0]}}" *ngIf="inviewportmentions" onerror="this.src='assets/images/def94.jpg'">
 							<span class="label leaderboard-label">{{item[1]}}</span>
 						</td>
 						<td class="leaderboard-text">
@@ -64,14 +64,23 @@
 	</div>
 </div>
 <div class="row link-sidebar-container">
-	<span class="link-sidebar"><a href="https://github.com/fossasia/loklak_search/issues/">Bug Report or Feature Request</a></span>
-	<span class="link-sidebar"><a href="https://fossasia.org">Developed by FOSSASIA</a></span>
-	<span class="link-sidebar"><a href="https://github.com/fossasia/loklak_search/graphs/contributors">Contributors</a></span>
-	<span class="link-sidebar"><a href="https://apps.loklak.org">Web Apps</a></span>
+	<span class="link-sidebar"><a href="{{ configUrl.github.loklakSearch }}/issues/">Bug Report or Feature Request</a></span>
+	<span class="link-sidebar"><a href="{{ configUrl.fossasia.root }}">Developed by FOSSASIA</a></span>
+	<span class="link-sidebar"><a href="{{ configUrl.github.loklakSearch }}/graphs/contributors">Contributors</a></span>
+	<span class="link-sidebar"><a href="{{ configUrl.loklak.apps }}">Web Apps</a></span>
 	<span class="link-sidebar"><a href="https://play.google.com/store/apps/details?id=org.loklak.android.wok">loklak Android Wok</a></span>
-	<span class="link-sidebar"><a href="https://www.facebook.com/loklak.org/">Like on Facebook</a></span>
+	<span class="link-sidebar"><a href="https://www.facebook.com/{{ configUrl.loklak.apiBase }}/">Like on Facebook</a></span>
 	<span class="link-sidebar"><a href="https://twitter.com/loklak_">Follow on Twitter</a></span>
 </div>
-
-
-
+<div class="row">
+	<span>
+			<a class="data rss" href="{{ configUrl.loklak.apiServer }}/api/search.rss?timezoneOffset=-330&q={{queryString}}" target="_blank">
+				<img src="assets/images/RssOrange.jpg"/>
+				<span><B>RSS</B></span>
+			</a>&nbsp;
+			<a class="data json" href="{{ configUrl.loklak.apiServer }}/api/search.json?timezoneOffset=-330&q={{queryString}}" target="_blank">
+				<img src="assets/images/JsonGreen.jpg"/>
+				<span><B>JSON</B></span>
+			</a>
+	</span>
+</div>&nbsp;

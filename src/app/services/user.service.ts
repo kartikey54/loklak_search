@@ -1,42 +1,37 @@
 import { Injectable } from '@angular/core';
-import { Jsonp, Response, URLSearchParams } from '@angular/http';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/observable/throw';
-
+import { HttpClient } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError, retry } from 'rxjs/operators';
+import { defaultUrlConfig } from '../shared/url-config';
 import { UserResponse } from '../models/api-user-response';
 
 @Injectable()
 export class UserService {
-	private static readonly apiUrl: URL = new URL('https://api.loklak.org/api/user.json');
-	private static minified_results = true;
+
+	public minified_results = true;
+	public followers = '4';
+	public following = '4';
 
 	constructor(
-		private jsonp: Jsonp
+		private http: HttpClient
 	) { }
 
 	// TODO: make the searchParams as configureable model rather than this approach.
-	public fetchQuery(user: string, follow_count: number): Observable<UserResponse> {
+	public fetchQuery(user: string): Observable<UserResponse> {
 		const screen_name = user.charAt(0).toUpperCase() + user.slice(1);
-		const searchParams = new URLSearchParams();
-		searchParams.set('screen_name', screen_name);
-		searchParams.set('followers', follow_count.toString());
-		searchParams.set('following', follow_count.toString());
-		searchParams.set('callback', 'JSONP_CALLBACK');
-		searchParams.set('minified', UserService.minified_results.toString());
-		return this.jsonp.get(UserService.apiUrl.toString(), {search : searchParams})
-								.map(this.extractData)
-								.catch(this.handleError);
 
-	}
+		const jsonpUrl = defaultUrlConfig.loklak.apiServer + '/api/user.json' +
+							'?screen_name=' + screen_name +
+							'&followers=' + this.followers +
+							'&following=' + this.following +
+							'&minified=' + this.minified_results.toString();
 
-	private extractData(res: Response): UserResponse {
-		try {
-			return <UserResponse>res.json();
-		} catch (error) {
-			console.error(error);
-		}
+		return this.http
+			.jsonp<UserResponse>(jsonpUrl, 'callback')
+			.pipe(
+				retry(2),
+				catchError(this.handleError)
+			);
 	}
 
 	private handleError (error: any) {
@@ -44,6 +39,6 @@ export class UserService {
 		const errMsg = (error.message) ? error.message :
 									error.status ? `${error.status} - ${error.statusText}` : 'Server error';
 		console.error(errMsg); // Right now we are logging to console itself
-		return Observable.throw(errMsg);
+		return throwError(errMsg);
 	}
 }

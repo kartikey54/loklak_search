@@ -1,19 +1,16 @@
 /* tslint:disable:no-unused-variable */
-
-import { TestBed, async, inject } from '@angular/core/testing';
+import { TestBed, async } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Title } from '@angular/platform-browser';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StoreModule } from '@ngrx/store';
-
 import * as fromRoot from '../reducers';
-import * as apiAction from '../actions/api';
 import { HomeComponent } from './home.component';
-
 import { RouterStub } from '../../testing';
-import { SpeechService } from '../speech.service';
+import { SpeechService } from '../services/speech.service';
+import { SpeechComponent } from '../speech/speech.component';
 
 @Component({
 	selector: 'app-footer',
@@ -42,19 +39,19 @@ class ServiceBoxStubComponent {
 }
 
 describe('Component: Home', () => {
-	let homeTitle: Title;
 	beforeEach(() => {
 		TestBed.configureTestingModule({
 			imports: [
 				RouterTestingModule,
 				ReactiveFormsModule,
-				StoreModule.provideStore(fromRoot.reducer)
+				StoreModule.forRoot(fromRoot.reducers)
 			],
 			declarations: [
 				HomeComponent,
 				FooterStubComponent,
 				LazyImgStubComponent,
-				ServiceBoxStubComponent
+				ServiceBoxStubComponent,
+				SpeechComponent
 			],
 			providers: [
 				{ provide: Router, useClass: RouterStub },
@@ -69,16 +66,6 @@ describe('Component: Home', () => {
 		const component = fixture.debugElement.componentInstance;
 		expect(component).toBeTruthy();
 	}));
-
-	it('should have a title Loklak Search', () => {
-		const fixture = TestBed.createComponent(HomeComponent);
-		fixture.detectChanges();
-		const component = fixture.debugElement.componentInstance;
-
-		homeTitle = TestBed.get(Title);
-		expect(homeTitle.getTitle())
-		.toBe('Loklak Search - Distributed Open Source Search for Twitter and Social Media with Peer to Peer Technology');
-	});
 
 	it('should have logo with correct alt text property', async(() => {
 		const fixture = TestBed.createComponent(HomeComponent);
@@ -111,6 +98,20 @@ describe('Component: Home', () => {
 		expect(compiled.querySelector('div.wrapper div.search-form input#search')).toBeTruthy();
 	}));
 
+	it('should dispatch Input Value Action for getting top hashtags', async(() => {
+		const fixture = TestBed.createComponent(HomeComponent);
+		fixture.detectChanges();
+		const component = fixture.debugElement.componentInstance;
+		const compiled = fixture.debugElement.nativeElement;
+
+		const query$ = component.store.select(fromRoot.getQuery);
+		let displayString: string;
+		const subscription = query$.subscribe(query => displayString = query.displayString);
+
+		expect(displayString).toBe('since:day');
+		subscription.unsubscribe();
+	}));
+
 	it('should focus the input search element on initialization', async(() => {
 		const fixture = TestBed.createComponent(HomeComponent);
 		fixture.detectChanges();
@@ -127,7 +128,7 @@ describe('Component: Home', () => {
 		const component = fixture.debugElement.componentInstance;
 		const compiled = fixture.debugElement.nativeElement;
 
-		const value = 'a';
+		const value = 'since:day';
 
 		const query$ = component.store.select(fromRoot.getQuery);
 		let displayString: string;

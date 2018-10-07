@@ -1,15 +1,14 @@
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
+import { HttpClientModule, HttpClientJsonpModule } from '@angular/common/http';
 
 import { StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { EffectsModule } from '@ngrx/effects';
 
-import { JsonpModule } from '@angular/http';
-import { SpeechService } from './speech.service';
-
-import { reducer } from './reducers';
+import { SpeechService } from './services/speech.service';
+import { reducers, metaReducers } from './reducers';
 import {
 	ApiSearchEffects,
 	MediaWallQueryEffects,
@@ -19,7 +18,9 @@ import {
 	QueryEffects,
 	UserQueryEffects,
 	WallPaginationEffects,
-	MediaWallDirectUrlEffects
+	MediaWallDirectUrlEffects,
+	SetTitleEffects,
+	DisplayNewsEffects
 } from './effects';
 
 import { LoklakAppRoutingModule } from './app-routing.module';
@@ -32,6 +33,7 @@ import {
 	UserService,
 	SuggestService
 } from './services';
+import { SpeechComponent } from './speech/speech.component';
 
 @NgModule({
 	declarations: [
@@ -39,7 +41,8 @@ import {
 		 * The `<app-root>` component of the application which gets Bootstrapped.
 		 * It is the top level component which `Angular` controls.
 		 */
-		AppComponent
+		AppComponent,
+		SpeechComponent
 	],
 	imports: [
 		/**
@@ -57,7 +60,8 @@ import {
 		/**
 		 * Module to register the providers for making Jsonp requests.
 		 */
-		JsonpModule,
+		HttpClientModule,
+		HttpClientJsonpModule,
 
 		/**
      * StoreModule.provideStore is imported once in the root module, accepting a reducer
@@ -66,9 +70,9 @@ import {
      * meta-reducer. This returns all providers for an @ngrx/store
      * based application.
      */
-		StoreModule.provideStore(reducer),
+		StoreModule.forRoot(reducers, { metaReducers }),
 
-    /**
+		/**
      * Store devtools instrument the store retaining past versions of state
      * and recalculating new states. This enables powerful time-travel
      * debugging.
@@ -84,21 +88,26 @@ import {
 		// StoreDevtoolsModule.instrumentOnlyWithExtension(),
 
 		/**
-     * EffectsModule.run() sets up the effects class to be initialized
+     * EffectsModule.forRoot([ ...Effects ]) sets up the effects class to be initialized
      * immediately when the application starts.
 		 * Must be called multiple times for each effect class you want to run.
 		 *
      * See: https://github.com/ngrx/effects/blob/master/docs/api.md#run
      */
-		EffectsModule.run(QueryEffects),
-		EffectsModule.run(UserQueryEffects),
-		EffectsModule.run(ApiSearchEffects),
-		EffectsModule.run(PaginationEffects),
-		EffectsModule.run(SuggestEffects),
-		EffectsModule.run(ApiUserSearchEffects),
-		EffectsModule.run(MediaWallQueryEffects),
-		EffectsModule.run(WallPaginationEffects),
-		EffectsModule.run(MediaWallDirectUrlEffects),
+		EffectsModule.forRoot([
+			QueryEffects,
+			UserQueryEffects,
+			ApiSearchEffects,
+			PaginationEffects,
+			SuggestEffects,
+			SuggestEffects,
+			ApiUserSearchEffects,
+			MediaWallQueryEffects,
+			WallPaginationEffects,
+			MediaWallDirectUrlEffects,
+			SetTitleEffects,
+			DisplayNewsEffects
+		]),
 
 		/**
 		 * Defines the routes at `root` level of the application.

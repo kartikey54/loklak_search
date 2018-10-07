@@ -5,47 +5,47 @@
 	<div *ngIf="(!isUserResponseLoading)" class="wrapper">
 		<div class="image-gallery">
 			<div class="profile-banner-image">
-				<img src="{{ apiResponseUser.profile_banner_url }}/600x200"/>
+				<img class="banner" src="{{ apiResponseUser.profile_banner_url }}"/>
 			</div>
 			<div class="profile-image">
-				<img src="{{ apiResponseUser.profile_image_url }}"/>
+				<img src="{{ apiResponseUser.profile_image_url_https }}" onerror="this.src='assets/images/def94.jpg'"/>
 			</div>
 		</div>
-		<div class="description">
-			<div class="heading">
+		<div>
+			<div class="heading" *ngIf="apiResponseUser">
 				<h2>{{ apiResponseUser.name }}</h2>
 				<span>@{{ apiResponseUser.screen_name }}</span>
 			</div>
-			<div class="desc">
+			<div class="desc" *ngIf="apiResponseUser">
 				<feed-linker
 					[text]="apiResponseUser.description"
 					[useAll]="true"></feed-linker>
 			</div>
-			<div class="listing">
+			<div class="listing" *ngIf="apiResponseUser">
 				<ul class="list-container">
 					<li class="list-item">
-						<span class="item-label">Tweets:</span>
+						<span class="item-label">Tweets:&nbsp;</span>
 						<span class="item-content">{{ apiResponseUser.statuses_count }}</span>
 					</li>
 					<li class="list-item">
-						<span class="item-label">Following:</span>
+						<span class="item-label">Following:&nbsp;</span>
 						<span class="item-content">{{ apiResponseUser.friends_count }}</span>
 					</li>
 					<li class="list-item">
-						<span class="item-label">Followers:</span>
+						<span class="item-label">Followers:&nbsp;</span>
 						<span class="item-content">{{ apiResponseUser.followers_count }}</span>
 					</li>
 					<li class="list-item">
-						<span class="item-label">Likes:</span>
+						<span class="item-label">Likes:&nbsp;</span>
 						<span class="item-content">{{ apiResponseUser.favourites_count }}</span>
 					</li>
 					<li class="list-item">
-						<span class="item-label">Location:</span>
+						<span class="item-label">Location:&nbsp;</span>
 						<span class="item-content" *ngIf="apiResponseUser.location">{{ apiResponseUser.location }}</span>
 					</li>
 					<li class="list-item">
-						<span class="item-label">Website:</span>
-						<span class="item-content" *ngIf="apiResponseUser.entities.url"><a href="{{ apiResponseUser.entities.url.urls[0].url }}">{{ apiResponseUser.entities.url.urls[0].expanded_url }}</a></span>
+						<span class="item-label">Website:&nbsp;</span>
+						<span class="item-content" *ngIf="apiResponseUser.entities"><a *ngIf="apiResponseUser.entities.url" href="{{ apiResponseUser.entities.url.urls[0].url }}">{{ apiResponseUser.entities.url.urls[0].expanded_url }}</a></span>
 					</li>
 				</ul>
 			</div>
@@ -53,10 +53,10 @@
 		<div class="followers gallery" *ngIf="apiResponseUserFollowers.length > 0">
 			<h3>Followers</h3>
 			<ul class="gallery-container">
-				<li class="gallery-item"  *ngFor="let item of (sortedApiResponseUserFollowers.slice(0,12)); let i = index ">
+				<li class="gallery-item"  *ngFor="let item of (sortedApiResponseUserFollowers.slice(0,3)); let i = index ">
 					<a [routerLink]="['/search']" [queryParams]="{ query : 'from:' + item.screen_name }">
 						<div class="item-image">
-							<img src="{{ item.profile_image_url }}"/>
+							<img src="{{ item.profile_image_url_https }}" onerror="this.src='assets/images/def94.jpg'"/>
 						</div>
 						<div class="item-desc">
 							<div class="item-name">
@@ -76,10 +76,10 @@
 		<div class="following gallery" *ngIf="apiResponseUserFollowing.length > 0">
 			<h3>Following</h3>
 			<ul class="gallery-container">
-				<li class="gallery-item"  *ngFor="let item of (sortedApiResponseUserFollowing.slice(0,12)); let i = index ">
+				<li class="gallery-item"  *ngFor="let item of (sortedApiResponseUserFollowing.slice(0,3)); let i = index ">
 					<a [routerLink]="['/search']" [queryParams]="{ query : 'from:' + item.screen_name }">
 						<div class="item-image">
-							<img src="{{ item.profile_image_url }}"/>
+							<img src="{{ item.profile_image_url_https }}" onerror="this.src='assets/images/def94.jpg'"/>
 						</div>
 						<div class="item-desc">
 							<div class="item-name">
@@ -98,6 +98,3 @@
 		</div>
 	</div>
 </div>
-
-
-

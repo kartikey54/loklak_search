@@ -5,32 +5,32 @@ import {
 	OnDestroy,
 	ChangeDetectionStrategy,
 	ElementRef,
-	HostListener
+	HostListener,
+	Inject
 } from '@angular/core';
 
-import { FormControl } from '@angular/forms';
-import { Location } from '@angular/common';
-import { Title } from '@angular/platform-browser';
-import { Router, ActivatedRoute, Params } from '@angular/router';
+import { Location, DOCUMENT } from '@angular/common';
+import { ActivatedRoute, Params } from '@angular/router';
 
-import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
+import { Observable, Subscription, combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../reducers';
-import * as apiAction from '../actions/api';
+import * as titleAction from '../actions/title';
 import * as queryAction from '../actions/query';
 import * as paginationAction from '../actions/pagination';
 import * as suggestAction from '../actions/suggest';
 
 import {
-	ApiResponse,
-	ApiResponseMetadata,
 	ApiResponseResult,
-	ApiResponseAggregations } from '../models/api-response';
-import { SuggestMetadata, SuggestResults, SuggestResponse } from '../models/api-suggest';
+	ApiResponseAggregations
+} from '../models/api-response';
+import { SuggestResults } from '../models/api-suggest';
 import { Query, parseStringToQuery } from '../models/query';
+import { SuggestQuery } from '../models/suggest';
 import { UserApiResponse } from '../models/api-user-response';
+import { fromRegExp } from '../utils/reg-exp';
 
 @Component({
 	selector: 'app-feed',
@@ -40,7 +40,7 @@ import { UserApiResponse } from '../models/api-user-response';
 })
 export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
 	private __subscriptions__: Subscription[] = new Array<Subscription>();
-
+	public navIsFixed: boolean;
 	public query$: Observable<Query>;
 	public isSearching$: Observable<boolean>;
 	public areResultsAvailable$: Observable<boolean>;
@@ -49,26 +49,28 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
 	public apiResponseAggregations$: Observable<ApiResponseAggregations>;
 	public isNextPageLoading$: Observable<boolean>;
 	public areMorePagesAvailable$: Observable<boolean>;
-
+	public fromQuery = false;
 	public isUserInfoSearching$: Observable<boolean>;
 	public areUserResultsValid$: Observable<boolean>;
 	public apiResponseUser$: Observable<UserApiResponse>;
 	public apiResponseUserFollowers$: Observable<UserApiResponse[]>;
 	public apiResponseUserFollowing$: Observable<UserApiResponse[]>;
 
-	public suggestQuery$: Observable<Query>;
+	public suggestQuery$: Observable<SuggestQuery>;
 	public isSuggestLoading$: Observable<boolean>;
 	public suggestResponse$: Observable<SuggestResults[]>;
+	public newsStatus = false;
 
 	constructor(
 		private route: ActivatedRoute,
 		private location: Location,
 		private store: Store<fromRoot.State>,
 		private elementRef: ElementRef,
-		private titleService: Title
+		@Inject(DOCUMENT) private document: Document
 	) { }
 
 	ngOnInit() {
+		this.store.select(fromRoot.getNewsStatus).subscribe(status => this.newsStatus = status);
 		this.queryFromURL();
 		this.getDataFromStore();
 	}
@@ -82,6 +84,20 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
 	 */
 	private focusTextbox(): void {
 		this.elementRef.nativeElement.querySelector('feed-header input#search').focus();
+	}
+
+	@HostListener('window:scroll', [])
+	onWindowScroll() {
+		if (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop > 100) {
+			this.navIsFixed = true;
+		} else if (this.navIsFixed && window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop < 10) {
+			this.navIsFixed = false; } } scrollToTop() { (function smoothscroll() {
+				const currentScroll = document.documentElement.scrollTop || document.body.scrollTop;
+				if (currentScroll > 0) {
+				window.requestAnimationFrame(smoothscroll);
+				window.scrollTo(0, currentScroll - (currentScroll / 5));
+			}
+		})();
 	}
 
 	/**
@@ -117,7 +133,6 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.isNextPageLoading$ = this.store.select(fromRoot.getPageLoading);
 		this.areMorePagesAvailable$ = this.store.select(fromRoot.getPagesAvailable);
 		this.apiResponseAggregations$ = this.store.select(fromRoot.getApiAggregations);
-
 		this.isUserInfoSearching$ = this.store.select(fromRoot.getUserSearchLoading);
 		this.areUserResultsValid$ = this.store.select(fromRoot.getAreApiUserResultsValid);
 		this.apiResponseUser$ = this.store.select(fromRoot.getApiUserResponse);
@@ -127,6 +142,15 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.suggestQuery$ = this.store.select(fromRoot.getSuggestQuery);
 		this.isSuggestLoading$ = this.store.select(fromRoot.getSuggestLoading);
 		this.suggestResponse$ = this.store.select(fromRoot.getSuggestResponseEntities);
+		this.query$.subscribe(displayString => {
+				this.store.dispatch(new titleAction.SetTitleAction(displayString.displayString + ' - Loklak Search'
+			));
+			if ( fromRegExp.exec(displayString.displayString) !== null ) {
+				this.fromQuery = true;
+			} else {
+				this.fromQuery = false;
+			}
+		});
 	}
 
 	/**
@@ -149,14 +173,19 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
 	 */
 	public doCloseSuggestBox$(): Observable<boolean> {
 		const doCloseSuggestBox =
-			this.isSearching$
-					.combineLatest(this.areResultsAvailable$, (isSearching, areResultsAvailable) => {
-						if (isSearching || !areResultsAvailable) {
-							return false;
-						} else {
-							return true;
-						}
-					});
+			combineLatest(
+				this.isSearching$,
+				this.areResultsAvailable$
+			)
+			.pipe(
+				map((isSearching, areResultsAvailable) => {
+					if (isSearching || !areResultsAvailable) {
+						return false;
+					} else {
+						return true;
+					}
+				})
+			);
 		return doCloseSuggestBox;
 	}
 

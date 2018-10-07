@@ -1,15 +1,10 @@
-import { Component, OnInit, OnDestroy, Inject, ChangeDetectionStrategy } from '@angular/core';
-import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
-
-import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
-
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { MatDialogRef } from '@angular/material';
+import { Observable, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../../reducers';
 import * as mediaWallDesignAction from '../../actions/media-wall-design';
 import * as mediaWallDirectUrlAction from '../../actions/media-wall-direct-url';
-
-import { WallHeader, WallBackground, WallCard } from '../../models';
 
 @Component({
 	selector: 'media-wall-design',
@@ -64,8 +59,7 @@ constructor(
 			this.wallColumnCount$.subscribe((value) => {
 				if (value === '') {
 					this.selectedColumnCount = 'Automatic';
-				}
-				else {
+				} else {
 					this.selectedColumnCount = value;
 				}
 			}),

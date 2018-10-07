@@ -10,14 +10,12 @@
 
 			<div class="search-input" [class.focused]="inputFocused">
 					<input type="text" id="search" name="search" [formControl]="_queryControl"
-									(focus)="inputFocused=true" (focusout)="inputFocused=false"/>
+					(keypress)="onEnter($event)" (focus)="inputFocused=true" (focusout)="inputFocused=false"/>
 					<button title="Search by voice" class="btn btn-default" id="speech-button" type="submit">
         				<a><img src="../../assets/images/microphone.png" class="microphone" (click)="speechRecognition()"/></a>
 			        </button>
 			</div>
-
 		</div>
-
 
 		<div class="help-text">
 			Use <span class="highlight">#hashtag</span>;&nbsp;
@@ -28,25 +26,28 @@
 			<span class="highlight">followers:user</span> find followers of a user.
 		</div>
 
-			<div class="top-hashtags-wrapper">
-				<div class="top-hashtags" *ngIf="trendingHashtagList.length">
-					<i class="material-icons trending" matTooltip="Trending Hashtags">trending_up</i>
-					<div class="hashtag-list">
-						<div class="top-list">
-							<span *ngFor ="let hashtag of (trendingHashtagList.slice(0,5))" class="hashtag">
-								<a [routerLink]="['/search']"
-									[queryParams]="{ query : '#' + hashtag }"><pre>#{{hashtag}}</pre></a>&nbsp;&nbsp;
-							</span>
-						</div>
-						<div class="bottom-list">
-							<span *ngFor ="let hashtag of (trendingHashtagList.slice(6,10))" class="hashtag">
-								<a [routerLink]="['/search']"
-									[queryParams]="{ query : '#' + hashtag }"><pre>#{{hashtag}}</pre></a>&nbsp;&nbsp;
-							</span>
-						</div>
+		<div class="top-hashtags" *ngIf="apiResponseHashtags$">
+			<div class="top-list">
+				<span>
+					<div *ngIf="(apiResponseHashtags$ | async).length !== 0">
+						<span *ngFor ="let item of ((apiResponseHashtags$ | async).slice(0,5));">
+							<a [routerLink]="['/search']"
+								[queryParams]="{ query : '#' + item.tag }">#{{item.tag}}</a>&nbsp;&nbsp;
+						</span>
 					</div>
-				</div>
+				</span>
 			</div>
+			<div class="bottom-list">
+				<span>
+					<div *ngIf="(apiResponseHashtags$ | async).length !== 0">
+						<span *ngFor ="let item of ((apiResponseHashtags$ | async).slice(6,10));">
+							<a [routerLink]="['/search']"
+								[queryParams]="{ query : '#' + item.tag }">#{{item.tag}}</a>&nbsp;&nbsp;
+						</span>
+					</div>
+				</span>
+			</div>
+		</div>
 	</div>
 </div>
 <app-footer></app-footer>

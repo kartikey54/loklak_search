@@ -1,17 +1,15 @@
 /* tslint:disable:no-unused-variable */
-
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, Input, Output } from '@angular/core';
 import { TestBed, async } from '@angular/core/testing';
-import { Route } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 import {
 	MatDialogModule,
-	MatDialog,
 	MatSlideToggleModule,
 	MatSelectModule,
-	MatCheckboxModule
+	MatCheckboxModule,
+	MatIconModule,
+	MatTabsModule
 } from '@angular/material';
 import { RouterTestingModule } from '@angular/router/testing';
 import { StoreModule } from '@ngrx/store';
@@ -20,8 +18,7 @@ import { MediaWallQueryComponent } from './media-wall-query/media-wall-query.com
 import { MediaWallModerationComponent } from './media-wall-moderation/media-wall-moderation.component';
 import { MediaWallDesignComponent } from './media-wall-design/media-wall-design.component';
 
-import { reducer } from '../reducers';
-import { RouterStub } from '../../testing';
+import { reducers } from '../reducers';
 import { MediaWallComponent } from './media-wall.component';
 import { MasonryModule } from '../app-masonry/app-masonry.module';
 import { LazyImgModule } from '../lazy-img/lazy-img.module';
@@ -49,7 +46,7 @@ class MediaWallLinkerStubComponent {
 	@Input() unshorten;
 	@Input() useAll;
 	@Input() wallCustomText;
-	@Output() onShowed;
+	@Output() showed;
 }
 
 @Component({
@@ -59,7 +56,7 @@ class MediaWallLinkerStubComponent {
 class MediaWallHeaderStubComponent {
 	@Input() query;
 	@Input() wallCustomHeader;
-	@Input() headerTitle
+	@Input() headerTitle;
 }
 
 @Component({
@@ -114,9 +111,11 @@ describe('Component: MediaWall', () => {
 				MatSlideToggleModule,
 				MatSelectModule,
 				MatCheckboxModule,
+				MatTabsModule,
+				MatIconModule,
 				MasonryModule,
 				LazyImgModule,
-				StoreModule.provideStore(reducer)
+				StoreModule.forRoot(reducers)
 			],
 			declarations: [
 				MediaWallComponent,

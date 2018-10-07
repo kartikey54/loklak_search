@@ -1,23 +1,21 @@
-import { Component, Input, Output, ViewChild,
-					OnInit, OnDestroy,
-					EventEmitter,
-					ChangeDetectionStrategy } from '@angular/core';
-
+import {
+	Component,
+	Input,
+	Output,
+	ViewChild,
+	OnInit,
+	OnDestroy,
+	EventEmitter,
+	ChangeDetectionStrategy
+} from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Location } from '@angular/common';
-
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../../reducers';
-
-import * as queryAction from '../../actions/query';
-
-import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
-
+import { Observable, Subscription } from 'rxjs';
 import { MatAutocompleteTrigger } from '@angular/material';
 
 import { SuggestResults } from '../../models/api-suggest';
-
+import * as speechactions from '../../actions/speech';
 
 @Component({
 	selector: 'feed-header',
@@ -35,25 +33,19 @@ export class FeedHeaderComponent implements OnInit, OnDestroy {
 	@ViewChild(MatAutocompleteTrigger) autoCompleteTrigger: MatAutocompleteTrigger;
 	public searchInputControl = new FormControl();
 	public inputFocused = false;
+	hidespeech: Observable<boolean>;
 
 	constructor(
 		private store: Store<fromRoot.State>
-	) { }
-
-	ngOnInit() {
-		this.setupSearchField();
-		this.setupSuggestBoxClosing();
+	) {
+		this.hidespeech = store.select(fromRoot.getspeechStatus);
 	}
 
-	private setupSearchField(): void {
-		this.__subscriptions__.push(
-			this.searchInputControl
-					.valueChanges
-					.subscribe(query => {
-						this.searchEvent.emit(query);
-					})
-		);
+	speechRecognition() {
+		this.store.dispatch(new speechactions.SearchAction(true));
 	}
+
+	ngOnInit() { }
 
 	private setupSuggestBoxClosing() {
 		this.__subscriptions__.push(
@@ -66,11 +58,27 @@ export class FeedHeaderComponent implements OnInit, OnDestroy {
 		);
 	}
 
+	onEnter(event: any) {
+		if (event.which === 13) {
+			if (this.searchInputControl.value.trim() !== '') {
+				this.searchEvent.emit(this.searchInputControl.value.trim());
+				this.setupSuggestBoxClosing();
+			}
+		}
+	}
+
+	onClick() {
+		if (this.searchInputControl.value.trim() !== '') {
+			this.searchEvent.emit(this.searchInputControl.value.trim());
+			this.setupSuggestBoxClosing();
+		}
+	}
+
 	public closeSuggestBox(): void {
 		this.autoCompleteTrigger.closePanel();
 	}
 
-		ngOnDestroy() {
-			this.__subscriptions__.forEach(subscription => subscription.unsubscribe());
-		}
+	ngOnDestroy() {
+		this.__subscriptions__.forEach(subscription => subscription.unsubscribe());
+	}
 }

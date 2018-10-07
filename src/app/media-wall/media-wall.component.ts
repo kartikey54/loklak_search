@@ -1,18 +1,19 @@
-import { Component, OnInit,
-		OnDestroy,
-		ElementRef, ChangeDetectionStrategy, ViewChild, ChangeDetectorRef } from '@angular/core';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { Location } from '@angular/common';
-import {MatDialog, MatDialogRef} from '@angular/material';
+import {
+	Component,
+	OnInit,
+	OnDestroy,
+	ChangeDetectionStrategy,
+	ChangeDetectorRef
+} from '@angular/core';
+import { ActivatedRoute, Params } from '@angular/router';
+import { MatDialog } from '@angular/material';
 import { MediaWallCustomizationComponent } from './media-wall-customization/media-wall-customization.component';
 import { MediaWallQueryComponent } from './media-wall-query/media-wall-query.component';
 import { MediaWallModerationComponent } from './media-wall-moderation/media-wall-moderation.component';
 import { MediaWallDesignComponent } from './media-wall-design/media-wall-design.component';
-import { Title } from '@angular/platform-browser';
 import { MasonryOptions } from '../app-masonry';
 
-import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
+import { Observable, Subscription, timer } from 'rxjs';
 
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../reducers';
@@ -20,12 +21,10 @@ import * as mediaWallAction from '../actions/media-wall-query';
 import * as mediaWallModerationAction from '../actions/media-wall-moderation';
 import * as mediaWallDesignAction from '../actions/media-wall-design';
 import * as mediaWallCustomAction from '../actions/media-wall-custom';
-
+import * as titleAction from '../actions/title';
 import { Query } from '../models/query';
-import { ApiResponse, ApiResponseResult } from '../models/api-response';
+import { ApiResponseResult } from '../models/api-response';
 import { WallHeader, WallBackground, WallCard } from '../models';
-
-
 
 @Component({
 	selector: 'app-media-wall',
@@ -59,16 +58,13 @@ export class MediaWallComponent implements OnInit, OnDestroy {
 		transitionDuration: '0.8s',
 		resize: true,
 		percentPosition: true
-	}
+	};
 
 	constructor(
 		private route: ActivatedRoute,
-		private location: Location,
-		private elementRef: ElementRef,
 		private store: Store<fromRoot.State>,
 		private ref: ChangeDetectorRef,
-		private dialog: MatDialog,
-		private titleService: Title
+		private dialog: MatDialog
 	) { }
 
 	ngOnInit() {
@@ -101,7 +97,7 @@ export class MediaWallComponent implements OnInit, OnDestroy {
 								wallCardAccentColor: params['wallCardAccentColor'] || '',
 								wallCardBackgroundColor: params['wallCardBackgroundColor'] || '',
 								wallBackgroundColor: params['wallBackgroundColor'] || ''
-							}
+							};
 							this.setConfig(config);
 					})
 		);
@@ -129,7 +125,7 @@ export class MediaWallComponent implements OnInit, OnDestroy {
 			if (array.length > 0) {
 				array.forEach(element => {
 					this.store.dispatch(new mediaWallModerationAction.WallHideFeedAction(element));
-				})
+				});
 			}
 		}
 		if (configSet['blockedUser']) {
@@ -137,7 +133,7 @@ export class MediaWallComponent implements OnInit, OnDestroy {
 			if (array.length >  0) {
 				array.forEach(element => {
 					this.store.dispatch(new mediaWallModerationAction.WallBlockUserAction(element));
-				})
+				});
 			}
 		}
 		if (configSet['profanityCheck']) {
@@ -151,7 +147,7 @@ export class MediaWallComponent implements OnInit, OnDestroy {
 		if (configSet['wallBackgroundColor']) {
 			const wallBackground = {
 				backgroundColor: configSet['wallBackgroundColor']
-			}
+			};
 			this.store.dispatch(new mediaWallCustomAction.WallBackgroundPropertiesChangeAction(wallBackground));
 		}
 		if (configSet['wallCardFontColor'] && configSet['wallCardAccentColor'] && configSet['wallCardBackgroundColor']) {
@@ -159,14 +155,14 @@ export class MediaWallComponent implements OnInit, OnDestroy {
 				fontColor: configSet['wallCardFontColor'],
 				accentColor: configSet['wallCardAccentColor'],
 				backgroundColor: configSet['wallCardBackgroundColor']
-			}
+			};
 			this.store.dispatch(new mediaWallCustomAction.WallCardPropertiesChangeAction(wallCard));
 		}
 		if (configSet['wallHeaderBackgroundColor'] && configSet['wallHeaderFontColor']) {
 			const wallHeader = {
 				backgroundColor: configSet['wallHeaderBackgroundColor'],
 				fontColor: configSet['wallHeaderFontColor']
-			}
+			};
 			this.store.dispatch(new mediaWallCustomAction.WallHeaderPropertiesChangeAction(wallHeader));
 		}
 		if (configSet['query'] || configSet['imageFilter'] || configSet['location']) {
@@ -188,7 +184,7 @@ export class MediaWallComponent implements OnInit, OnDestroy {
 					until: null
 				},
 				from: false
-			}
+			};
 			this.store.dispatch(new mediaWallAction.WallQueryChangeAction(query));
 		}
 	}
@@ -209,19 +205,19 @@ export class MediaWallComponent implements OnInit, OnDestroy {
 		this.wallColumnCount$ = this.store.select(fromRoot.getWallColumnCount);
 		this.wallDisplayHeader$ = this.store.select(fromRoot.getWallDisplayHeader);
 		this.wallHeaderTitle$ = this.store.select(fromRoot.getWallHeaderTitle);
+		this.query$.subscribe(displayString =>
+			this.store.dispatch(new titleAction.SetTitleAction(displayString.displayString + ' - Loklak Search'
+		)));
 	}
 
 	public openDialog(event) {
 		if (event === 'Color') {
 			this.dialog.open(MediaWallCustomizationComponent);
-		}
-		else if (event === 'Search') {
+		} else if (event === 'Search') {
 			this.dialog.open(MediaWallQueryComponent);
-		}
-		else if (event === 'Moderation') {
+		} else if (event === 'Moderation') {
 			this.dialog.open(MediaWallModerationComponent);
-		}
-		else if (event === 'Design') {
+		} else if (event === 'Design') {
 			this.dialog.open(MediaWallDesignComponent);
 		}
 	}
@@ -230,7 +226,7 @@ export class MediaWallComponent implements OnInit, OnDestroy {
 		if (!this.showToolBar) {
 			this.showToolBar = true;
 			this.ref.markForCheck();
-			this.timer = Observable.timer(8000);
+			this.timer = timer(8000);
 			this.__subscriptions__.push(
 				this.timer.subscribe(() => {
 					this.showToolBar = false;
@@ -247,8 +243,7 @@ export class MediaWallComponent implements OnInit, OnDestroy {
 					const intValue = parseInt(value, 10);
 					const columnCountInt: number = 100 / intValue;
 					this.columnCount = columnCountInt.toString() + '%';
-				}
-				else {
+				} else {
 					this.columnCount = value;
 				}
 				this.ref.markForCheck();

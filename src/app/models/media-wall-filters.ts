@@ -13,8 +13,7 @@ export function profanityFilter(feeds: ApiResponseResult[]): ApiResponseResult[]
 			if (feed.classifier_profanity !== 'sex' && feed.classifier_profanity !== 'swear') {
 				filteredFeeds.push(feed);
 			}
-		}
-		else {
+		} else {
 			filteredFeeds.push(feed);
 		}
 	});
@@ -94,7 +93,6 @@ export function accountInclusion(
 export function removeDuplicateCheck(feeds: ApiResponseResult[]): ApiResponseResult[] {
 	const map = { };
 	const filteredFeeds: ApiResponseResult[] = [];
-	const newFeeds: ApiResponseResult[] = feeds;
 	let v: string;
 	for (let a = 0; a < feeds.length; a++) {
 		v = feeds[a].id_str;

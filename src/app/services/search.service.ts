@@ -1,56 +1,60 @@
+import { hashtagRegExp, fromRegExp, mentionRegExp, nearRegExp, sinceRegExp } from './../utils/reg-exp';
 import { Injectable } from '@angular/core';
-import { Jsonp, Response, URLSearchParams } from '@angular/http';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/observable/throw';
-
+import { HttpClient } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError, retry } from 'rxjs/operators';
 import { SearchServiceConfig } from '.';
 import { ApiResponse } from '../models/api-response';
+import { defaultUrlConfig } from '../shared/url-config';
 
 @Injectable()
 export class SearchService {
-	private static readonly apiUrl: URL = new URL('https://api.loklak.org/api/search.json');
 
 	constructor(
-		private jsonp: Jsonp
+		private http: HttpClient
 	) { }
 
 	public fetchQuery(query: string, config: SearchServiceConfig): Observable<ApiResponse> {
-		const searchParams = new URLSearchParams();
-		searchParams.set('q', query);
-		searchParams.set('callback', 'JSONP_CALLBACK');
-		searchParams.set('minified', 'true');
-		searchParams.set('source', config.source);
-		searchParams.set('maximumRecords', config.maximumRecords.toString());
-		searchParams.set('timezoneOffset', config.getTimezoneOffset());
-		searchParams.set('startRecord', config.startRecord.toString());
+		let jsonpUrl = defaultUrlConfig.loklak.apiServer + '/api/search.json';
 
-		if (config.getAggregationFieldString()) {
-			searchParams.set('fields', config.getAggregationFieldString());
-			searchParams.set('limit', config.aggregationLimit.toString());
+		if ( sinceRegExp.exec(query) === null && hashtagRegExp.exec(query) !== null ) {
+			jsonpUrl += '?callback=JSONP_CALLBACK&timezoneOffset=' + config.getTimezoneOffset();
+		} else {
+			jsonpUrl += '?timezoneOffset=' + config.getTimezoneOffset();
 		}
+
+		if ( hashtagRegExp.exec(query) !== null ) {
+			// Check for hashtag query
+			jsonpUrl += '&q=%23' + hashtagRegExp.exec(query)[1] + '' + hashtagRegExp.exec(query)[0];
+		} else if ( fromRegExp.exec(query) !== null ) {
+			// Check for from user query
+			jsonpUrl += '&q=from%3A' + fromRegExp.exec(query)[1];
+		} else if ( mentionRegExp.exec(query) !== null ) {
+			// Check for mention query
+			jsonpUrl += '&q=%40' + mentionRegExp.exec(query)[1];
+		} else if ( nearRegExp.exec(query) !== null ) {
+			// Check for near query
+			jsonpUrl += '&q=near%3A' + nearRegExp.exec(query)[1];
+		} else {
+			// for other queries
+			jsonpUrl += '&q=' + query;
+		}
+
+		jsonpUrl += '&minified=' + 'true' +
+					'&source=' + config.source +
+					'&maximumRecords=' + config.maximumRecords.toString() +
+					'&startRecord=' + config.startRecord.toString();
 
 		if (config.getFilterString()) {
-			searchParams.set('filter', config.getFilterString());
+			jsonpUrl += '&filter=' + config.getFilterString();
 		}
 
-		return this.jsonp.get(SearchService.apiUrl.toString(), { search: searchParams })
-			.map(this.extractData)
-			.catch(this.handleError);
-	}
-
-	private extractData(res: Response): ApiResponse {
-		try {
-			const resp = <ApiResponse>res.json();
-			if (resp.statuses[0].images_count > 1) {
-				// debugger;
-				resp.statuses[0].images = [resp.statuses[0].images[0]];
-			}
-			return resp;
-		} catch (error) {
-			console.error(error);
-		}
+		return this.http
+			.jsonp<ApiResponse>(jsonpUrl, 'callback')
+			.pipe(
+				retry(2),
+				catchError(this.handleError)
+			);
 	}
 
 	private handleError(error: any) {
@@ -58,6 +62,6 @@ export class SearchService {
 		const errMsg = (error.message) ? error.message :
 			error.status ? `${error.status} - ${error.statusText}` : 'Server error';
 		console.error(errMsg); // Right now we are logging to console itself
-		return Observable.throw(errMsg);
+		return throwError(errMsg);
 	}
 }

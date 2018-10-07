@@ -1,4 +1,3 @@
-import { createSelector } from 'reselect';
 import * as mediaWallDesignAction from '../actions/media-wall-design';
 
 export interface State {
@@ -8,7 +7,7 @@ export interface State {
 		columnCount: string;
 		count: number;
 		cardStyle: string;
-}
+};
 }
 
 export const initialState: State = {

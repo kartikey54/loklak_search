@@ -9,7 +9,7 @@
 			<div class="search-form">
 				<div class="search-input" [class.focused]="inputFocused">
 						<input matInput required search autocomplete="off" type="text" id="search" name="search"
-							(focus)="inputFocused=true" (focusout)="inputFocused=false"
+							(focus)="inputFocused=true" (focusout)="inputFocused=false" (keypress)="onEnter($event)"
 							[formControl]="searchInputControl" [matAutocomplete]="searchSuggestBox"
 							(keyup.enter)="[relocateEvent.emit(query), closeSuggestBox()]" [(ngModel)]="query"/>
 
@@ -19,9 +19,15 @@
 									{{suggestion.query}}
 							</mat-option>
 						</mat-autocomplete>
-
-						<i id="search-suffix-icon" class="material-icons material-icons.md-dark">search</i>
 				</div>
+				<span class="feature">
+					<button title="Search by voice" class="btn btn-default" id="speech-button" type="submit">
+						<a><img src="../../assets/images/microphone.png" class="microphone" (click)="speechRecognition()"/></a>
+					</button>
+					<button class="btn btn-default">
+						<a (click)="onClick()"><i id="search-suffix-icon" class="material-icons material-icons.md-dark">search</i></a>
+					</button>
+				</span>
 			</div>
 		</div>
 		<div class="panel">

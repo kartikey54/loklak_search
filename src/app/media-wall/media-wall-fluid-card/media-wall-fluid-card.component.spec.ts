@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { TestBed, async } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MediaWallFluidCardComponent } from './media-wall-fluid-card.component';
 
@@ -28,7 +28,7 @@ class MediaWallLinkerStubComponent {
 	@Input() unshorten;
 	@Input() useAll;
 	@Input() wallCustomText;
-	@Output() onShowed;
+	@Output() showed;
 }
 
 

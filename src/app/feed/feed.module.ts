@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { SpeechService } from '../services/speech.service';
 
 import {
 	MatAutocompleteModule,
@@ -29,6 +29,7 @@ import { FeedLightboxComponent } from './feed-lightbox/feed-lightbox.component';
 import { FeedUserCardComponent } from './feed-user-card/feed-user-card.component';
 import { InViewportDirective } from '../shared/in-viewport.directive';
 import { FeedAdvancedSearchComponent } from './feed-advanced-search/feed-advanced-search.component';
+import { FeedNewsComponent } from './feed-news/feed-news.component';
 
 
 @NgModule({
@@ -102,7 +103,11 @@ import { FeedAdvancedSearchComponent } from './feed-advanced-search/feed-advance
 		UserInfoBoxComponent,
 		FeedLightboxComponent,
 		FeedUserCardComponent,
-		FeedAdvancedSearchComponent
+		FeedAdvancedSearchComponent,
+		FeedNewsComponent
+	],
+	providers: [
+		SpeechService
 	]
 })
 export class FeedModule { }

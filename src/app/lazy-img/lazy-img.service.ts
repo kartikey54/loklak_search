@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import { Subscriber } from 'rxjs/Subscriber';
+import { Observable, Subscriber } from 'rxjs';
 
 @Injectable()
 export class LazyImgService {
@@ -72,6 +71,7 @@ export class LazyImgService {
 	}
 
 	public fetch(resource: string): Observable<string> {
+		resource = resource.split(',')[0];
 		return new Observable<string>(subscriber => {
 			fetch(resource)
 				.then(this.processStatus)
